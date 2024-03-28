@@ -39,8 +39,7 @@ most_common_weather = pd.read_sql_query(
     SELECT
     city,
     weather,
-    weather_description,
-    MAX(percentage)
+    weather_description
     FROM (
         SELECT DISTINCT
             city,
@@ -50,7 +49,9 @@ most_common_weather = pd.read_sql_query(
         FROM data_table
         WHERE time_id <= {n}
         GROUP BY city, weather, weather_description
-    );
+    )
+    GROUP BY city
+    HAVING percentage == MAX(percentage);
     """,
     con=engine
 )
