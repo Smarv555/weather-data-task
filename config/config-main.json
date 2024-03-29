@@ -16,7 +16,8 @@
       "city": "Cagliari"
     }
   ],
-  "weather_data_csv": "../data/weather.csv",
+  "weather_data_csv": "../data/main_data/weather.csv",
+  "test_responses_json": "../data/test_data/test_responses.json",
   "database": "sqlite:///weather_db.db",
   "table_name": "weather_table"
 }

@@ -3,6 +3,7 @@ import csv
 import json
 import requests
 import logging
+import responses
 import pandas as pd
 from datetime import datetime
 from typing import List, Dict
@@ -26,8 +27,9 @@ def get_data(api: str, payload: dict) -> dict:
         print(f"Successfully fetched the data from API call: {response.url}")
         return response.json()
     else:
-        print(f"Error: {response.status_code}. Failed to fetch data.")
-        print("Response content:", response.content)
+        raise Exception(f"Error: {response.status_code}. Failed to fetch data from API call {response.url}")
+        # print(f"Error: {response.status_code}. Failed to fetch data.")
+        # print("Response content:", response.content)
 
 
 def convert_timestamp(timestamp: int) -> datetime:
@@ -54,12 +56,24 @@ def read_csv(file_path: str) -> pd.DataFrame:
     except Exception as error:
         error_msg = f"Error occurred in {function_name} function: {error}"
         logger.error(error_msg)
-        raise error_msg
+        raise Exception(error_msg)
 
     logger.info(
         f"The {function_name} function finished successfully. Data frame created from CSV file: {file_path}"
     )
     return df
+
+
+def generate_test_data(weather_data: str, test_data: str) -> None:
+    """
+
+    :param weather_data_csv:
+    :param test_data_csv:
+    :return:
+    """
+    weather_data_df = read_csv(file_path=weather_data)
+    test_weather_data_df = weather_data_df.query("hours_forecast <= 5")
+    test_weather_data_df.to_csv(path_or_buf=test_data, sep=",", header=True, index=False)
 
 
 def extract_weather_data_to_csv(
@@ -173,6 +187,7 @@ class ConfigParser:
         self.database = self.config_json.get("database")
         self.table_name = self.config_json.get("table_name")
         self.weather_data_csv = os.path.abspath(self.config_json.get("weather_data_csv"))
+        self.test_responses_json = os.path.abspath(self.config_json.get("test_responses_json"))
 
     def read_config_file(self, env) -> dict:
         """
@@ -192,7 +207,7 @@ class ConfigParser:
         except Exception as error:
             error_msg = f"Error occurred in {self.read_config_file.__name__} method: {error}"
             logger.error(error_msg)
-            raise error_msg
+            raise Exception(error_msg)
 
         return config_json
 
@@ -210,22 +225,67 @@ if __name__ == "__main__":
     # with open("../weather_data.json", "r") as f:
     #     weather_dic = json.load(f)
 
-    config = ConfigParser(env="main")
+    # config = ConfigParser(env="main")
+    #
+    # api_key = config.api_key
+    #
+    # weather_api_call = config.weather_api
+    #
+    # geo_api_call = config.geocode_api
+    #
+    # loc_list = config.locations_list
+    #
+    # csv_file = config.weather_data_csv
+    #
+    # extract_weather_data_to_csv(
+    #     file=csv_file,
+    #     locations_list=loc_list,
+    #     weather_api=weather_api_call,
+    #     geo_api=geo_api_call,
+    #     appid=api_key
+    # )
 
-    api_key = config.api_key
+    # @responses.activate
+    # def responses_test():
+    #     responses.get(
+    #         "http://example.com/test?param1=param1&param2=param2.1%2Cparam2.2",
+    #         json={"type": "get1"}
+    #     )
+    #
+    #     responses.get(
+    #         "http://example2.com/test?param1=param1&param2=param2.1%2Cparam2.2",
+    #         json={"type": "get2"}
+    #     )
+    #
+    #     response1 = get_data(
+    #         api="http://example.com/test",
+    #         payload={
+    #             "param1": "param1",
+    #             "param2": "param2.1,param2.2"
+    #         }
+    #     )
+    #     print(response1)
+    #
+    #     response2 = get_data(
+    #         api="http://example2.com/test",
+    #         payload={
+    #             "param1": "param1",
+    #             "param2": "param2.1,param2.2"
+    #         }
+    #     )
+    #     print(response2)
+    #
+    # responses_test()
 
-    weather_api_call = config.weather_api
+    # weather_data = "../data/weather.csv"
+    # test_data = "../data/test_weather.csv"
+    # generate_test_data(weather_data=weather_data, test_data=test_data)
 
-    geo_api_call = config.geocode_api
+    print(convert_timestamp(1711612800))
+    print(convert_timestamp(1711616400))
+    print(convert_timestamp(1711620000))
 
-    loc_list = config.locations_list
+    with open("../data/test_data/test_responses.json", "r") as f:
+        test_responses = json.load(f)
 
-    csv_file = config.weather_data_csv
-
-    extract_weather_data_to_csv(
-        file=csv_file,
-        locations_list=loc_list,
-        weather_api=weather_api_call,
-        geo_api=geo_api_call,
-        appid=api_key
-    )
+    print(test_responses)

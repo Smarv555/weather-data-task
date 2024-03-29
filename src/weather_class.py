@@ -58,7 +58,8 @@ class WeatherForecast:
                 ROUND(COUNT(weather)/{float(hours_forecast)}*100, 0) AS percentage
             FROM weather_table
             WHERE hours_forecast <= {hours_forecast}
-            GROUP BY city, weather, weather_description;
+            GROUP BY city, weather, weather_description
+            ORDER BY city, percentage DESC;
         """
         try:
             logger.info(
@@ -150,9 +151,10 @@ class WeatherForecast:
             SELECT
                 datetime,
                 city,
-            MAX(temp) AS highest_temp
+                temp AS highest_temp
             FROM weather_table
-            WHERE hours_forecast <= {hours_forecast};
+            WHERE hours_forecast <= {hours_forecast}
+            AND temp = (SELECT MAX(temp) FROM weather_table WHERE hours_forecast <= {hours_forecast});
         """
         try:
             logger.info(
@@ -177,7 +179,7 @@ class WeatherForecast:
         query = f"""
             SELECT
                 city,
-                MAX(temp_variation)
+                MAX(temp_variation) AS highest_temp_variation
             FROM (
                 SELECT
                     city,
@@ -209,10 +211,12 @@ class WeatherForecast:
         method_name = self.get_strongest_wind_city.__name__
         query = f"""
             SELECT
+                datetime,
                 city,
-                MAX(wind_speed_m_s)
+                wind_speed_m_s
             FROM weather_table
-            WHERE hours_forecast <= {hours_forecast};
+            WHERE hours_forecast <= {hours_forecast}
+            AND wind_speed_m_s = (SELECT MAX(wind_speed_m_s) FROM weather_table WHERE hours_forecast <= {hours_forecast});
         """
         try:
             logger.info(
