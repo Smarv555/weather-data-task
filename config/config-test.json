@@ -1,0 +1,22 @@
+{
+  "api_key": "test-api-key",
+  "weather_api": "test_weather_api",
+  "geocode_api": "test_weather_api",
+  "locations_list": [
+    {
+      "country": "IT",
+      "city": "Milan"
+    },
+    {
+      "country": "IT",
+      "city": "Bologna"
+    },
+    {
+      "country": "IT",
+      "city": "Cagliari"
+    }
+  ],
+  "weather_data_csv": "../data/test_weather.csv",
+  "database": "sqlite:///:memory:",
+  "table_name": "weather_table"
+}

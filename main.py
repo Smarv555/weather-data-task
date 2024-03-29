@@ -1,16 +1,18 @@
 import pandas as pd
-from pandas.io import sql
 from sqlalchemy import create_engine
 
 # pd.set_option("display.max_columns", 15)
 
 data = pd.read_csv("data/weather.csv")
+max_hour_forecast = data["hours_forecast"].max()
+print(max_hour_forecast)
+print(type(max_hour_forecast))
 
 # Create the db engine
-engine = create_engine('sqlite:///:memory:')
+engine = create_engine('sqlite:///weather_db.db')
 
 # Store the dataframe as a table
-data.to_sql(name='data_table', con=engine)
+data.to_sql(name='weather_table', con=engine, if_exists="replace")
 
 # Query 1 on the relational table
 
@@ -23,8 +25,8 @@ distinct_weather = pd.read_sql_query(
         weather,
         weather_description,
         ROUND(COUNT(weather)/{float(n)}*100, 0) AS percentage
-    FROM data_table
-    WHERE time_id <= {n}
+    FROM weather_table
+    WHERE hours_forecast <= {n}
     GROUP BY city, weather, weather_description;
     """,
     con=engine
@@ -46,8 +48,8 @@ most_common_weather = pd.read_sql_query(
             weather,
             weather_description,
         ROUND(COUNT(weather)/{float(n)}*100, 0) AS percentage
-        FROM data_table
-        WHERE time_id <= {n}
+        FROM weather_table
+        WHERE hours_forecast <= {n}
         GROUP BY city, weather, weather_description
     )
     GROUP BY city
@@ -66,8 +68,8 @@ temps = pd.read_sql_query(
     SELECT
     city,
     temp
-    FROM data_table
-    WHERE time_id <= {n};
+    FROM weather_table
+    WHERE hours_forecast <= {n};
     """,
     con=engine
 )
@@ -79,8 +81,8 @@ average_temp = pd.read_sql_query(
     SELECT
     city,
     ROUND(AVG(temp), 2) AS average_temp
-    FROM data_table
-    WHERE time_id <= {n}
+    FROM weather_table
+    WHERE hours_forecast <= {n}
     GROUP BY city;
     """,
     con=engine
@@ -95,8 +97,8 @@ highest_temp = pd.read_sql_query(
     datetime,
     city,
     MAX(temp) AS highest_temp
-    FROM data_table
-    WHERE time_id <= {n};
+    FROM weather_table
+    WHERE hours_forecast <= {n};
     """,
     con=engine
 )
@@ -113,8 +115,8 @@ highest_variation_city = pd.read_sql_query(
         SELECT
             city,
             (MAX(temp) - MIN(temp)) AS temp_variation
-        FROM data_table
-        WHERE time_id <= {n}
+        FROM weather_table
+        WHERE hours_forecast <= {n}
         GROUP BY city
     );
     """,
@@ -130,12 +132,11 @@ strongest_wind_city = pd.read_sql_query(
     SELECT
         city,
         MAX(wind_speed_m_s)
-    FROM data_table
-    WHERE time_id <= {n};
+    FROM weather_table
+    WHERE hours_forecast <= {n};
     """,
     con=engine
 )
 
 print(f'Strongest wind city city for next {n} hours')
 print(strongest_wind_city)
-
