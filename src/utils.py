@@ -3,7 +3,6 @@ import csv
 import json
 import requests
 import logging
-import responses
 import pandas as pd
 from datetime import datetime
 from typing import List, Dict
@@ -11,32 +10,32 @@ from typing import List, Dict
 # Logger setup
 logger = logging.getLogger()
 logging.basicConfig(
-    filename="movies_dataset_logs.log", format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG
+    filename="weather_forecast_logs.log", format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG
 )
 
 
 def get_data(api: str, payload: dict) -> dict:
     """
-
-    :param api:
-    :param payload:
-    :return:
+    Fetch data from API call
+    :param api: API call url
+    :param payload: payload parameters for the API call
+    :return: A dictionary with the API call response
     """
     response = requests.get(api, params=payload)
     if response.status_code == 200:
-        print(f"Successfully fetched the data from API call: {response.url}")
+        logger.info(f"Successfully fetched the data from API call: {response.url}")
         return response.json()
     else:
-        raise Exception(f"Error: {response.status_code}. Failed to fetch data from API call {response.url}")
-        # print(f"Error: {response.status_code}. Failed to fetch data.")
-        # print("Response content:", response.content)
+        error_msg = f"Error: {response.status_code}. Failed to fetch data from API call {response.url}"
+        logger.error(error_msg)
+        raise Exception(error_msg)
 
 
 def convert_timestamp(timestamp: int) -> datetime:
     """
-
-    :param timestamp:
-    :return:
+    Converts a timestamp value to datetime
+    :param timestamp: timestamp value to be converted
+    :return: converted datetime
     """
     return datetime.fromtimestamp(timestamp)
 
@@ -64,18 +63,6 @@ def read_csv(file_path: str) -> pd.DataFrame:
     return df
 
 
-def generate_test_data(weather_data: str, test_data: str) -> None:
-    """
-
-    :param weather_data_csv:
-    :param test_data_csv:
-    :return:
-    """
-    weather_data_df = read_csv(file_path=weather_data)
-    test_weather_data_df = weather_data_df.query("hours_forecast <= 5")
-    test_weather_data_df.to_csv(path_or_buf=test_data, sep=",", header=True, index=False)
-
-
 def extract_weather_data_to_csv(
         file: str,
         locations_list: List[Dict],
@@ -83,13 +70,15 @@ def extract_weather_data_to_csv(
         geo_api: str,
         appid: str) -> None:
     """
-
-    :param file:
-    :param locations_list:
-    :param weather_api:
-    :param geo_api:
-    :param appid:
+    Extract weather forecast data from the OpenWeatherMap API and save it to CSV file
+    :param file: CSV file path
+    :param locations_list: list of country codes and cities which weather data will be extracted
+    :param weather_api: weather forecast OpenWeatherMap API url
+    :param geo_api: geocoding OpenWeatherMap API url
+    :param appid: OpenWeatherMap API key
     """
+    function_name = extract_weather_data_to_csv.__name__
+    logger.info(f"Calling function {function_name} on file {file}")
     fieldnames = [
         "hours_forecast",
         "datetime",
@@ -105,75 +94,94 @@ def extract_weather_data_to_csv(
         "pressure_level",
         "humidity_percentage",
     ]
-    response_list = []
     data = []
 
-    for location in locations_list:
-        # Geocoding API
-        city = location.get("city")
-        country = location.get("country")
-        geo_api_payload = {
-            "q": f"{city},{country}",
-            "limit": 1,
-            "appid": appid
-        }
-        geo_api_response = get_data(api=geo_api, payload=geo_api_payload)
+    try:
+        for location in locations_list:
+            # Geocoding API
+            city = location.get("city")
+            country = location.get("country")
+            geo_api_payload = {
+                "q": f"{city},{country}",
+                "limit": 1,
+                "appid": appid
+            }
+            geo_api_response = get_data(api=geo_api, payload=geo_api_payload)
 
-        # Weather forecast API
-        weather_api_payload = {
-            "lat": geo_api_response[0].get("lat"),
-            "lon": geo_api_response[0].get("lon"),
-            "exclude": "daily,minutely,current",
-            "units": "metric",
-            "appid": appid,
-        }
-        weather_api_response = get_data(api=weather_api, payload=weather_api_payload)
+            # Weather forecast API
+            weather_api_payload = {
+                "lat": geo_api_response[0].get("lat"),
+                "lon": geo_api_response[0].get("lon"),
+                "exclude": "daily,minutely,current",
+                "units": "metric",
+                "appid": appid,
+            }
+            weather_api_response = get_data(api=weather_api, payload=weather_api_payload)
 
-        # Integer for time_id column
-        hours_forecast = 1
+            # Integer for hours_forecast column
+            hours_forecast = 1
 
-        for hour_dict in weather_api_response.get("hourly"):
-            data.append(
-                {
-                    "hours_forecast": hours_forecast,
-                    "datetime": convert_timestamp(hour_dict.get("dt")),
-                    "country": country,
-                    "city": city,
-                    "temp": hour_dict.get("temp"),
-                    "temp_feels_like": hour_dict.get("feels_like"),
-                    "weather": hour_dict.get("weather")[0].get("main"),
-                    "weather_description": hour_dict.get("weather")[0].get("description"),
-                    "pop": hour_dict.get("pop"),
-                    "wind_speed_m_s": hour_dict.get("wind_speed"),
-                    "clouds_percentage": hour_dict.get("clouds"),
-                    "pressure_level": hour_dict.get("pressure"),
-                    "humidity_percentage": hour_dict.get("humidity"),
-                }
-            )
-            hours_forecast += 1
+            for hour_dict in weather_api_response.get("hourly"):
+                data.append(
+                    {
+                        "hours_forecast": hours_forecast,
+                        "datetime": convert_timestamp(hour_dict.get("dt")),
+                        "country": country,
+                        "city": city,
+                        "temp": hour_dict.get("temp"),
+                        "temp_feels_like": hour_dict.get("feels_like"),
+                        "weather": hour_dict.get("weather")[0].get("main"),
+                        "weather_description": hour_dict.get("weather")[0].get("description"),
+                        "pop": hour_dict.get("pop"),
+                        "wind_speed_m_s": hour_dict.get("wind_speed"),
+                        "clouds_percentage": hour_dict.get("clouds"),
+                        "pressure_level": hour_dict.get("pressure"),
+                        "humidity_percentage": hour_dict.get("humidity"),
+                    }
+                )
+                hours_forecast += 1
 
-        response_list.append([geo_api_response[0], weather_api_response])
+        with open(file, "w", encoding="UTF8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
 
-    with open(file, "w", encoding="UTF8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+        logger.info(f"The {function_name} function finished successfully. Weather data extracted to CSV file: {file}")
+    except Exception as error:
+        error_msg = f"Error occurred in {extract_weather_data_to_csv.__name__} function: {error}"
+        logger.error(error_msg)
+        raise Exception(error_msg)
 
 
 class ConfigParser:
     """
-    A class for weather data configuration parser
+    A class for weather forecast configuration parser
     ...
 
     Attributes
     ----------
     config_json : dict
-        config dictionary with movies dataset file paths
-
+        config dictionary for weather forecast data
+    api_key : str
+        OpenWeatherMap API key
+    weather_api : str
+        weather forecast OpenWeatherMap API url
+    geocode_api : str
+        geocoding OpenWeatherMap API url
+    locations_list : List[Dict]
+        list of country codes and cities which weather data will be extracted
+    database : str
+        SQL database engine url
+    table_name : str
+        SQL database table name
+    weather_data_csv : str
+        weather data CSV file path
+    test_responses_json : str
+        JSON file path for the unit test response mocking
     Methods
     -------
-    read_config_file():
-        Read the config.json file
+    read_config_file:
+        Read the config-{env}.json file
     """
 
     def __init__(self, env):
@@ -210,82 +218,3 @@ class ConfigParser:
             raise Exception(error_msg)
 
         return config_json
-
-
-if __name__ == "__main__":
-    # response = get_data(api=api_call, payload=params)
-    # with open("weather_data.json", "w") as f:
-    #     json.dump(response, f)
-
-    # dt = 1711609200
-    # dt_converted = datetime.fromtimestamp(dt)
-    #
-    # print(dt, type(dt_converted))
-
-    # with open("../weather_data.json", "r") as f:
-    #     weather_dic = json.load(f)
-
-    # config = ConfigParser(env="main")
-    #
-    # api_key = config.api_key
-    #
-    # weather_api_call = config.weather_api
-    #
-    # geo_api_call = config.geocode_api
-    #
-    # loc_list = config.locations_list
-    #
-    # csv_file = config.weather_data_csv
-    #
-    # extract_weather_data_to_csv(
-    #     file=csv_file,
-    #     locations_list=loc_list,
-    #     weather_api=weather_api_call,
-    #     geo_api=geo_api_call,
-    #     appid=api_key
-    # )
-
-    # @responses.activate
-    # def responses_test():
-    #     responses.get(
-    #         "http://example.com/test?param1=param1&param2=param2.1%2Cparam2.2",
-    #         json={"type": "get1"}
-    #     )
-    #
-    #     responses.get(
-    #         "http://example2.com/test?param1=param1&param2=param2.1%2Cparam2.2",
-    #         json={"type": "get2"}
-    #     )
-    #
-    #     response1 = get_data(
-    #         api="http://example.com/test",
-    #         payload={
-    #             "param1": "param1",
-    #             "param2": "param2.1,param2.2"
-    #         }
-    #     )
-    #     print(response1)
-    #
-    #     response2 = get_data(
-    #         api="http://example2.com/test",
-    #         payload={
-    #             "param1": "param1",
-    #             "param2": "param2.1,param2.2"
-    #         }
-    #     )
-    #     print(response2)
-    #
-    # responses_test()
-
-    # weather_data = "../data/weather.csv"
-    # test_data = "../data/test_weather.csv"
-    # generate_test_data(weather_data=weather_data, test_data=test_data)
-
-    print(convert_timestamp(1711612800))
-    print(convert_timestamp(1711616400))
-    print(convert_timestamp(1711620000))
-
-    with open("../data/test_data/test_responses.json", "r") as f:
-        test_responses = json.load(f)
-
-    print(test_responses)

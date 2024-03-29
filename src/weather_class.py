@@ -5,17 +5,35 @@ from utils import logger, read_csv, extract_weather_data_to_csv, ConfigParser
 
 class WeatherForecast:
     """
-    A class for weather data forecast
+    A class for weather forecast data
     ...
 
     Attributes
     ----------
     config : dict
-        config dictionary with weather data configurations
-
+        config dictionary for weather forecast data
+    engine : str
+        SQL database engine
+    weather_data: pd.Dataframe
+        Pandas data frame with weather forecast data
+    max_hours_forecast: int
+        the maximum hour forecast value
     Methods
     -------
-
+    get_distinct_weather:
+        Get all distinct weather conditions in a certain period of time per city
+    get_most_common_weather:
+        Get the most common weather conditions in a certain period of time per city
+    get_average_temp:
+        Get the average temperature in a certain period of time per city
+    get_highest_temp_city:
+        Get the city with the highest absolute temperature in a certain period of time
+    get_highest_temp_variation_city:
+        Get the city with the highest daily temperature variation in a certain period of time
+    get_strongest_wind_city:
+        Get the city with the strongest wind in a certain period of time
+    check_hours_forecast:
+        Check if the hours forecasting period is in the accepted range, [1, {self.max_hours_forecast}]
     """
 
     def __init__(self, test: bool = False):
@@ -44,9 +62,9 @@ class WeatherForecast:
 
     def get_distinct_weather(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get all distinct weather conditions in a certain period of time per city
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with distinct weather conditions per city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_distinct_weather.__name__
@@ -75,9 +93,9 @@ class WeatherForecast:
 
     def get_most_common_weather(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get the most common weather conditions in a certain period of time per city
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with most common weather conditions per city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_most_common_weather.__name__
@@ -113,9 +131,9 @@ class WeatherForecast:
 
     def get_average_temp(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get the average temperature in a certain period of time per city
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with average temperature per city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_average_temp.__name__
@@ -141,9 +159,9 @@ class WeatherForecast:
 
     def get_highest_temp_city(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get the city with highest absolute temperature in a certain period of time
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with highest temperature city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_highest_temp_city.__name__
@@ -170,9 +188,9 @@ class WeatherForecast:
 
     def get_highest_temp_variation_city(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get the city with the highest daily temperature variation in a certain period of time
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with the highest temperature variation city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_highest_temp_variation_city.__name__
@@ -203,9 +221,9 @@ class WeatherForecast:
 
     def get_strongest_wind_city(self, hours_forecast: int) -> pd.DataFrame:
         """
-
-        :param hours_forecast:
-        :return:
+        Get the city with the strongest wind in a certain period of time
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
+        :return: Pandas data frame with the strongest wind city
         """
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_strongest_wind_city.__name__
@@ -232,14 +250,13 @@ class WeatherForecast:
 
     def check_hours_forecast(self, hours_forecast: int) -> None:
         """
-
-        :param hours_forecast:
+        Check if the hours forecasting period is in the accepted range, [1, {self.max_hours_forecast}]
+        :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return:
         """
-        method_name = self.check_hours_forecast.__name__
         hours_in_range = hours_forecast in range(1, self.max_hours_forecast + 1)
         if not hours_in_range:
-            error_msg = f"The {method_name} method failed. " \
+            error_msg = f"The {self.__class__.__name__} method {self.check_hours_forecast.__name__} failed. " \
                         f"Invalid hours forecast, please specify hours in range [1, {self.max_hours_forecast}]"
             logger.error(error_msg)
             raise ValueError(error_msg)

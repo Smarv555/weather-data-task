@@ -7,18 +7,24 @@ from src.utils import ConfigParser, get_data, extract_weather_data_to_csv, read_
 
 
 @responses.activate
-def test_get_data():
+def test1_get_data():
+    """
+    Testing the get_data function for status code 200 and status code 400
+    """
+    # Mock API call response with status 200
     responses.get(
         url="http://example.com/test?param1=param1&param2=param2.1%2Cparam2.2",
         json={"type": "get1"},
         status=200
     )
 
+    # Mock API call response with status 400
     responses.get(
         "http://example2.com/test?param1=param1&param2=param2.1%2Cparam2.2",
         status=400
     )
 
+    # Calling the API with expected status 200
     response1 = get_data(
         api="http://example.com/test",
         payload={
@@ -27,6 +33,7 @@ def test_get_data():
         }
     )
 
+    # Calling the API with expected status 400
     with pytest.raises(Exception) as e:
         response2 = get_data(
             api="http://example2.com/test",
@@ -44,10 +51,9 @@ def test_get_data():
 
 
 @responses.activate
-def test_extract_weather_data_to_csv():
+def test2_extract_weather_data_to_csv():
     """
-
-    :return:
+    Testing the extract_weather_data_to_csv function
     """
     config = ConfigParser(env="test")
 
@@ -84,6 +90,7 @@ def test_extract_weather_data_to_csv():
         url=config.weather_api + f"?lat=39.227779&lon=9.111111&exclude=daily%2Cminutely%2Ccurrent&units=metric&appid={config.api_key}",
         json=test_responses["Cagliari"]["WeatherAPI"]
     )
+    # Calling the extract weather data function and saving the test weather data to CSV
     extract_weather_data_to_csv(
         file=config.weather_data_csv,
         locations_list=config.locations_list,
@@ -91,8 +98,10 @@ def test_extract_weather_data_to_csv():
         geo_api=config.geocode_api,
         appid=config.api_key
     )
+    # Creating pandas data frame from the test weather data
     actual_df = read_csv(file_path=config.weather_data_csv)
 
+    # Creating pandas data frame for the expected weather data
     expected_df = pd.DataFrame(
         data={
             "hours_forecast": [1, 2, 3, 1, 2, 3, 1, 2, 3],
@@ -141,6 +150,7 @@ def test_extract_weather_data_to_csv():
         },
     )
 
+    # Asserting the expected and actual pandas data frames
     assert_frame_equal(expected_df, actual_df)
 
 

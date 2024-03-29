@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 from src.weather_class import WeatherForecast
@@ -9,8 +10,7 @@ hours_forecast = 3
 
 def test_get_distinct_weather():
     """
-
-    :return:
+    Testing the get_distinct_weather method from WeatherForecast class
     """
     expected_data = {
         "city": ["Bologna", "Cagliari", "Milan", "Milan"],
@@ -27,8 +27,7 @@ def test_get_distinct_weather():
 
 def test_get_most_common_weather():
     """
-
-    :return:
+    Testing the get_most_common_weather method from WeatherForecast class
     """
     expected_data = {
         "city": ["Bologna", "Cagliari", "Milan"],
@@ -44,8 +43,7 @@ def test_get_most_common_weather():
 
 def test_get_average_temp():
     """
-
-    :return:
+    Testing the get_average_temp method from WeatherForecast class
     """
     expected_data = {
         "city": ["Bologna", "Cagliari", "Milan"],
@@ -60,8 +58,7 @@ def test_get_average_temp():
 
 def test_get_highest_temp_city():
     """
-
-    :return:
+    Testing the get_highest_temp_city method from WeatherForecast class
     """
     expected_data = {
         "datetime": ["2024-03-28 10:00:00"],
@@ -77,8 +74,7 @@ def test_get_highest_temp_city():
 
 def test_get_highest_temp_variation_city():
     """
-
-    :return:
+    Testing the get_highest_temp_variation_city method from WeatherForecast class
     """
     expected_data = {
         "city": ["Cagliari"],
@@ -93,8 +89,7 @@ def test_get_highest_temp_variation_city():
 
 def test_get_strongest_wind_city():
     """
-
-    :return:
+    Testing the get_strongest_wind_city method from WeatherForecast class
     """
     expected_data = {
         "datetime": ["2024-03-28 10:00:00", "2024-03-28 10:00:00"],

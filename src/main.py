@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 
 # pd.set_option("display.max_columns", 15)
 
-data = pd.read_csv("data/main_data/weather.csv")
+data = pd.read_csv("../data/main_data/weather.csv")
 max_hour_forecast = data["hours_forecast"].max()
 print(max_hour_forecast)
 print(type(max_hour_forecast))
