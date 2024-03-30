@@ -7,7 +7,7 @@ from src.utils import ConfigParser, get_data, extract_weather_data_to_csv, read_
 
 
 @responses.activate
-def test1_get_data():
+def test_get_data():
     """
     Testing the get_data function for status code 200 and status code 400
     """
@@ -51,7 +51,7 @@ def test1_get_data():
 
 
 @responses.activate
-def test2_extract_weather_data_to_csv():
+def test_extract_weather_data_to_csv():
     """
     Testing the extract_weather_data_to_csv function
     """
