@@ -5,7 +5,7 @@ from utils import logger, read_csv, extract_weather_data_to_csv, ConfigParser
 
 class WeatherForecast:
     """
-    A class for weather forecast data
+    A class for weather forecast data extraction from OpenWeatherMap API
     ...
 
     Attributes

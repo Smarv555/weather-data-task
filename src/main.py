@@ -36,14 +36,14 @@ if __name__ == "__main__":
         f"\n------ Average temperatures for 24 hours forecast:\n{average_temperatures_df}"
     )
 
-    # Print the city with highest absolute temperature in a certain period of time.
+    # Print the city with the highest absolute temperature in a certain period of time.
     highest_temperature_city_df = weather_forecast_object.get_highest_temp_city(hours_forecast=hours_forecast)
     print(
         "\n\n--- Print the city with the highest temperature for the next 24 hours"
         f"\n------ Highest temperature city for 24 hours forecast:\n{highest_temperature_city_df}"
     )
 
-    # Print the city with highest temperature variation in a certain period of time.
+    # Print the city with the highest temperature variation in a certain period of time.
     highest_temperature_variation_city_df = weather_forecast_object.get_highest_temp_variation_city(hours_forecast=hours_forecast)
     print(
         "\n\n--- Print the city with the highest temperature variation for the next 24 hours"
