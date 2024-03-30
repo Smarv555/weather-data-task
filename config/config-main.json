@@ -1,5 +1,5 @@
 {
-  "api_key": "fc19154afa75c5adf7ac46e224283180",
+  "api_key": "<OpenWeatherMap API key>",
   "weather_api": "https://api.openweathermap.org/data/3.0/onecall",
   "geocode_api": "http://api.openweathermap.org/geo/1.0/direct",
   "locations_list": [

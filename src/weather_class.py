@@ -270,20 +270,3 @@ class WeatherForecast:
                         f"Invalid hours forecast, please specify hours in range [1, {self.max_hours_forecast}]"
             logger.error(error_msg)
             raise ValueError(error_msg)
-
-
-if __name__ == "__main__":
-    weather_object = WeatherForecast()
-    hours = 24
-    print(f"Print distinct weather conditions per city:"
-          f"\n{weather_object.get_distinct_weather(hours_forecast=hours)}")
-    print(f"Print most common weather conditions per city:"
-          f"\n{weather_object.get_most_common_weather(hours_forecast=hours)}")
-    print(f"Print average temperature per city:"
-          f"\n{weather_object.get_average_temp(hours_forecast=hours)}")
-    print(f"Print highest temp city:"
-          f"\n{weather_object.get_highest_temp_city(hours_forecast=hours)}")
-    print(f"Print highest temp variation city:"
-          f"\n{weather_object.get_highest_temp_variation_city(hours_forecast=hours)}")
-    print(f"Print strongest wind city:"
-          f"\n{weather_object.get_strongest_wind_city(hours_forecast=hours)}")
