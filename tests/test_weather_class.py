@@ -78,7 +78,9 @@ def test_get_highest_temp_variation_city():
     """
     expected_data = {
         "city": ["Cagliari"],
-        "highest_temp_variation": [3.0]
+        "highest_temp_variation": [3.0],
+        "max_temp": [10.36],
+        "min_temp": [7.36]
     }
 
     expected_df = pd.DataFrame(data=expected_data)

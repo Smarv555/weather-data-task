@@ -60,12 +60,13 @@ class WeatherForecast:
         # Store the weather data frame as table (if table exists it is dropped and replaced)
         self.weather_data.to_sql(name=self.config.table_name, con=self.engine, if_exists="replace")
 
-    def get_distinct_weather(self, hours_forecast: int) -> pd.DataFrame:
+    def get_distinct_weather(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get all distinct weather conditions in a certain period of time per city
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with distinct weather conditions per city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_distinct_weather.__name__
         query = f"""
@@ -91,12 +92,13 @@ class WeatherForecast:
 
         return df_query_result
 
-    def get_most_common_weather(self, hours_forecast: int) -> pd.DataFrame:
+    def get_most_common_weather(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get the most common weather conditions in a certain period of time per city
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with most common weather conditions per city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_most_common_weather.__name__
         query = f"""
@@ -129,12 +131,13 @@ class WeatherForecast:
 
         return df_query_result
 
-    def get_average_temp(self, hours_forecast: int) -> pd.DataFrame:
+    def get_average_temp(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get the average temperature in a certain period of time per city
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with average temperature per city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_average_temp.__name__
         query = f"""
@@ -157,12 +160,13 @@ class WeatherForecast:
 
         return df_query_result
 
-    def get_highest_temp_city(self, hours_forecast: int) -> pd.DataFrame:
+    def get_highest_temp_city(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get the city with highest absolute temperature in a certain period of time
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with highest temperature city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_highest_temp_city.__name__
         query = f"""
@@ -186,21 +190,26 @@ class WeatherForecast:
 
         return df_query_result
 
-    def get_highest_temp_variation_city(self, hours_forecast: int) -> pd.DataFrame:
+    def get_highest_temp_variation_city(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get the city with the highest daily temperature variation in a certain period of time
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with the highest temperature variation city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_highest_temp_variation_city.__name__
         query = f"""
             SELECT
                 city,
-                MAX(temp_variation) AS highest_temp_variation
+                MAX(temp_variation) AS highest_temp_variation,
+                max_temp,
+                min_temp
             FROM (
                 SELECT
                     city,
+                    MAX(temp) as max_temp,
+                    MIN(temp) as min_temp,
                     (MAX(temp) - MIN(temp)) AS temp_variation
                 FROM weather_table
                 WHERE hours_forecast <= {hours_forecast}
@@ -219,12 +228,13 @@ class WeatherForecast:
 
         return df_query_result
 
-    def get_strongest_wind_city(self, hours_forecast: int) -> pd.DataFrame:
+    def get_strongest_wind_city(self, hours_forecast: int = None) -> pd.DataFrame:
         """
         Get the city with the strongest wind in a certain period of time
         :param hours_forecast: forecasting period in hours, should be in range [1, {self.max_hours_forecast}]
         :return: Pandas data frame with the strongest wind city
         """
+        hours_forecast = self.max_hours_forecast if not hours_forecast else hours_forecast
         self.check_hours_forecast(hours_forecast=hours_forecast)
         method_name = self.get_strongest_wind_city.__name__
         query = f"""
