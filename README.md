@@ -1,8 +1,8 @@
 # weather-data-task
 
-This Python program analyzes weather forecast data. It utilizes the OpenWeatherMap API to extract weather forecast data
-and then loads it into a SQLite database. It is capable to perform several analyzing operations utilized by the provided
-WeatherForecast class.
+This Python program analyzes weather forecast data. It utilizes the [OpenWeatherMap API](https://openweathermap.org/api)
+to extract weather forecast data and then loads it into a SQLite database. It is capable to perform several analyzing
+operations utilized by the provided WeatherForecast class.
 
 ## Features
 
@@ -93,10 +93,11 @@ set PYTHONPATH=%cd%;%cd%/src
 
 ## Configuration
 
-There are config-main.json and config-test.json files in the config directory that specify the configuration requirements
-like API key, API urls, locations and file paths.
+There are config-main.json and config-test.json files in the config directory that specify the configuration
+requirements like API key, API urls, locations and file paths.
 
 - config-main.json
+
 ```json
 {
   "api_key": "<OpenWeatherMap API key>",
